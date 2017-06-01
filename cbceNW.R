@@ -42,11 +42,16 @@ cbceNW <- function (X, Y, alpha = 0.05, OL_thres = 0.9, tag = NULL, Cpp = TRUE, 
   cat("#-------------------\n")
   
   if (generalOutput)
-    cat("Setup\n")
+    cat("Setup & pre-calculations\n")
   
   X <- scale(X); Y <- scale(Y)
-  X3 <- X^3; X2 <- X^2; X4ColSum <- colSums(X^4)
-  Y3 <- Y^3; Y2 <- Y^2; Y4ColSum <- colSums(Y^4)
+  tX <- t(X); tY <- t(Y)
+  X2 <- X^2; X3 <- X^3; X4 <- X^4; X4ColSum <- colSums(X4)
+  Y2 <- Y^2; Y3 <- Y^3; Y4 <- Y^4; Y4ColSum <- colSums(Y4)
+  tX2 <- t(X2); tX3 <- t(X3); tY2 <- t(Y2); tY3 <- t(Y3)
+  tXX <- tcrossprod(X); tYY <- tcrossprod(Y)
+  X1RowSums <- rowSums(X); X2RowSums <- rowSums(X2)
+  Y1RowSums <- rowSums(Y); Y2RowSums <- rowSums(Y2)
   
   dx <- ncol(X)
   dy <- ncol(Y)
@@ -59,6 +64,8 @@ cbceNW <- function (X, Y, alpha = 0.05, OL_thres = 0.9, tag = NULL, Cpp = TRUE, 
     if (generalOutput)
       cat("Calculating full cross correlation matrix\n")
     full_xy_cor <- cor(X, Y)
+    allr22 <- crossprod(X2, Y2)
+    allr31 <- crossprod(X3, Y)
   }
   
   source("auxiliary.R", local = TRUE)
