@@ -1,11 +1,9 @@
-run_expers <- sapply(commandArgs(TRUE), as.numeric)
-
+#run_expers <- sapply(commandArgs(TRUE), as.numeric)
+run_expers <- c(1, 3, 4, 5, 6)
 source("sim_eQTL_network.R")
-source("bmd.R")
-source("bmdC.R")
-source("bmd_cpp.R")
 source("run_brim.R")
 source("ircc.R")
+source("cbceNW.R")
 total_expers <- readLines("sims-results/exper-names.txt")
 
 runBMDcpp <- TRUE
@@ -45,9 +43,9 @@ for (exper in run_expers) {
       # Running BMDcpp
       if (runBMDcpp) {
         timer <- proc.time()[3]
-        results <- bmdC(sim$X, sim$Y, alpha = alpha, verbose = FALSE, generalOutput = TRUE,
-                           updateOutput = FALSE, OL_tol = 100, Dud_tol = 50,
-                           calc_full_cor = TRUE, updateMethod = 5)
+        results <- cbceNW(sim$X, sim$Y, alpha = alpha, verbose = FALSE, generalOutput = TRUE,
+                          updateOutput = FALSE, OL_tol = 100, Dud_tol = 50, Cpp = TRUE,
+                          calc_full_cor = TRUE, updateMethod = 1)
         timer <- proc.time()[3] - timer
         save(results, timer, file = file.path(curr_dir_p_rep, "bmd_cpp.RData"))
       }
@@ -55,9 +53,9 @@ for (exper in run_expers) {
       # Running BMD2
       if (runBMD2) {
         timer <- proc.time()[3]
-        results <- bmd(sim$X, sim$Y, alpha = alpha, verbose = FALSE, generalOutput = TRUE,
-                       updateOutput = FALSE, OL_tol = 100, Dud_tol = 50,
-                       calc_full_cor = TRUE, updateMethod = 5)
+        results <- cbceNW(sim$X, sim$Y, alpha = alpha, verbose = FALSE, generalOutput = TRUE,
+                          updateOutput = FALSE, OL_tol = 100, Dud_tol = 50,
+                          calc_full_cor = TRUE, updateMethod = 2)
         timer <- proc.time()[3] - timer
         save(results, timer, file = file.path(curr_dir_p_rep, "bmd2.RData"))
       }
@@ -65,9 +63,9 @@ for (exper in run_expers) {
       # Running BMD
       if (runBMD) {
         timer <- proc.time()[3]
-        results <- bmd(sim$X, sim$Y, alpha = alpha,
-                       updateOutput = FALSE, OL_tol = 100, Dud_tol = 50,
-                       calc_full_cor = TRUE, updateMethod = 7)
+        results <- cbceNW(sim$X, sim$Y, alpha = alpha, verbose = FALSE,
+                          updateOutput = FALSE, OL_tol = 100, Dud_tol = 50,
+                          calc_full_cor = TRUE, updateMethod = 1)
         timer <- proc.time()[3] - timer
         save(results, timer, file = file.path(curr_dir_p_rep, "bmd.RData"))
       }

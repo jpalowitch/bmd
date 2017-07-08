@@ -1,4 +1,5 @@
-plot_expers <- sapply(commandArgs(TRUE), as.numeric)
+#plot_expers <- sapply(commandArgs(TRUE), as.numeric)
+plot_expers <- c(1, 3, 4, 5, 6)
 
 library(RColorBrewer)
 library(plotrix)
@@ -25,7 +26,7 @@ methNames <- c("bmd2", "bmd_cpp")
 # Set which methods to plot and their plot names
 plot_meths <- c(1, 2)
 #plot_names <- c("BMD", "k-means", "BRIM", "BMD-cpp")
-plot_names <- c("bmdR", "bmdC")
+plot_names <- c("bmd2", "bmdC")
 
 # Set points
 pchs <- c(14, 8, 3, 22, 24, 21)
