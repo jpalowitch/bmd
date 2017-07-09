@@ -4,6 +4,7 @@ source("sim_eQTL_network.R")
 source("run_brim.R")
 source("ircc.R")
 source("cbceNW.R")
+source("cbceNW_c.R")
 total_expers <- readLines("sims-results/exper-names.txt")
 
 runBMDcpp <- TRUE
@@ -39,6 +40,16 @@ for (exper in run_expers) {
     
       curr_dir_p_rep <- file.path(curr_dir_p, rep)
       load(file.path(curr_dir_p_rep, "sim.RData"))
+      
+      # Running BMDcpp
+      if (runBMD_c) {
+        timer <- proc.time()[3]
+        results <- cbceNW_c(sim$X, sim$Y, alpha = alpha, verbose = TRUE, generalOutput = TRUE,
+                            updateOutput = TRUE, OL_tol = 100, Dud_tol = 50, Cpp = FALSE,
+                            calc_full_cor = TRUE, updateMethod = 1, twoSided = TRUE, parallel = FALSE)
+        timer <- proc.time()[3] - timer
+        save(results, timer, file = file.path(curr_dir_p_rep, "bmd_c.RData"))
+      }
       
       # Running BMDcpp
       if (runBMDcpp) {

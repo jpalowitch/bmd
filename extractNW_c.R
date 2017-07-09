@@ -26,11 +26,10 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
   if (length(B01) > 1) {
     
     # Half-update
+    pvals2 <- bmd_obj$pvals(B01, parallel)
     if (Cpp) {
-      pvals2 <- pvalsCpp(B01)
       B02 <- bh_rejectC(pvals2, alpha, conserv = TRUE)
     } else {
-      pvals2 <- pvalsR(B01)
       B02 <- bh_rejectR(pvals2, alpha, conserv = TRUE)
     }
     
@@ -43,6 +42,9 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
     if (interact) {
       Dud_count <<- Dud_count + 1
     }
+    if (updateOutput && verbose) {
+      cat("--initialize was a dud\n")
+    }
     return(list("indx" = indx, "report" = "dud"))
   }
   
@@ -52,6 +54,10 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
     B0x <- B01; B0y <- B02
   } else {
     B0x <- B02; B0y <- B01
+  }
+  
+  if (updateOutput && verbose) {
+    cat(paste0("--obtained initial set of size (", length(B0x), ", ", length(B0y), ")\n"))
   }
   
   # Initializing extraction loop
@@ -70,6 +76,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
   repeat {
     
     itCount <- itCount + 1
+    cat(paste0("--calculating p-values for update ", itCount, "...\n"))
     
     if (updateMethod == 1) {
       
@@ -134,6 +141,8 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
       
     if (length(B_newy) * length(B_newx) == 0) {
       B_newy <- B_newx <- integer(0)
+      if (updateOutput && verbose)
+        cat("----collapse on at least one side\n")
       break
     }
       
@@ -154,7 +163,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
         did_it_cycle <- TRUE
         
         if (updateOutput)
-          cat("---- Cycle found")
+          cat("----cycle found")
         
         Start <- max(which(jaccards == 0))
         cycle_chain <- chain[Start:length(chain)]
@@ -165,7 +174,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
           seq_pair_jaccards[j] <- jaccard(chain[[Start + j - 1]], chain[[Start + j]])
         }
         if (sum(seq_pair_jaccards > 0.5) > 0) {# then break needed
-          cat(" ---- Break found\n")
+          cat("------break found\n")
           found_break[itCount] <- TRUE
           B_new <- integer(0)
           break
@@ -175,10 +184,10 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
         B_J <- unique(unlist(cycle_chain))
         B_J_check <- unlist(lapply(chain, function (B) jaccard(B_J, B)))
         if (sum(B_J_check == 0) > 0) {
-          cat(" ---- Old cycle\n")
+          cat("------old cycle\n")
           break
         } else {
-          cat(" ---- New cycle\n")
+          cat("------new cycle\n")
           B_oldx <- B_J[B_J <= dx]
           B_oldy <- B_J[B_J > dx]
         }
@@ -192,6 +201,11 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
       
     } else { # From checking B_new to B_old; if not, B_new = B_old and:
       break
+    }
+    
+    if (updateOutput && verbose) {
+      cat(paste0("----updated to set of size (", length(B_newx), ", ", length(B_newy), ")\n"))
+      cat(paste0("----jaccard to previous = ", round(consec_jaccard, 3), "\n"))
     }
     
     B_old <- c(B_oldx, B_oldy)
