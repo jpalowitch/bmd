@@ -24,11 +24,13 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
   betamean = par_list$betamean
   p = par_list$p
   rho = par_list$rho
+  rho_var = par_list$rho_var
   s2 = par_list$s2
   bgb = par_list$bgb
   corNoiseX = par_list$corNoiseX
   corNoiseY = par_list$corNoiseY
   maxNoiseCor = par_list$maxNoiseCor
+  size_law = par_list$size_law
   
   avgsize <- cmin + (cmax - cmin) / 2
   
@@ -38,8 +40,8 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
   
   # Getting bimodule sizes
   if (cmin < cmax) {
-    Xsizes <- sample(cmin:cmax, b, replace = TRUE)
-    Ysizes <- sample(cmin:cmax, b, replace = TRUE)
+    Xsizes <- sample(cmin:cmax, b, replace = TRUE, prob = (cmin:cmax)^(-size_law))
+    Ysizes <- sample(cmin:cmax, b, replace = TRUE, prob = (cmin:cmax)^(-size_law))
   } else {
     Xsizes <- Ysizes <- rep(cmin, b)
   }
@@ -52,6 +54,15 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
   }
   dbg <- max(dbg, 3 * bgb)
   dx <- sum(Xsizes) + dbg; dy <- sum(Ysizes) + dbg
+  
+  # Getting rhos
+  if (rho_var == 0 || rho == 0) {
+    rhos <- rep(rho, b)
+  } else {
+    beta_a <- ((1 - rho) / rho_var - 1 / rho) * rho^2
+    beta_b <- beta_a * (1 / rho - 1)
+    rhos <- rbeta(b, beta_a, beta_b)
+  }
   
   # Initializing loop
   X <- matrix(numeric(dx * n), nrow = n); Y <- matrix(numeric(dy * n), nrow = n)
@@ -72,8 +83,8 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
       eQTLs[eQTLs == 1] <- rexp(sum(eQTLs), rate = 1 / betamean)
     
     # Making data
-    SigmaX <- (1 - rho) * diag(Xsizes[i]) + 
-      matrix(rho, ncol = Xsizes[i], nrow = Xsizes[i])
+    SigmaX <- (1 - rhos[i]) * diag(Xsizes[i]) + 
+      matrix(rhos[i], ncol = Xsizes[i], nrow = Xsizes[i])
     Xi <- mvrnormR(n, rep(0, Xsizes[i]), SigmaX)
     noisevec <- rnorm(n * Ysizes[i], sd = sqrt(nv))
     noisemat <- matrix(noisevec, nrow = n)
@@ -150,11 +161,13 @@ make_param_list <- function (n = 200,
                              betamean = 1,
                              p = 0.5,
                              rho = 0.3,
+                             rho_var = 0,
                              s2 = 4,
                              bgb = NULL,
                              corNoiseX = FALSE,
                              corNoiseY = FALSE,
-                             maxNoiseCor = rho) {
+                             maxNoiseCor = rho,
+                             size_law = 0) {
   return(list("n" = n,
               "b" = b,
               "cmin" = cmin,
@@ -163,11 +176,13 @@ make_param_list <- function (n = 200,
               "betamean" = betamean,
               "p" = p,
               "rho" = rho,
+              "rho_var" = rho_var,
               "s2" = s2,
               "bgb" = bgb,
               "corNoiseX" = corNoiseX,
               "corNoiseY" = corNoiseY,
-              "maxNoiseCor" = maxNoiseCor))
+              "maxNoiseCor" = maxNoiseCor,
+              "size_law" = size_law))
 }
 
 

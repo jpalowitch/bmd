@@ -331,8 +331,33 @@ save(par_list,
      par_dirs,
      file = "sims-results/sbm-par-lists/experiment14.RData")
 
+# Experiment 15 -----------------------------------------------------------------
+
+main_text <- "Increase n, bm-size power law"
+par_list <- make_param_list(size_law = -1, cmin = 5, cmax = 200)
+pars <- c("n")
+xlab <- "Sample Size"
+palpha <- FALSE
+axis_par <- 1
+par_settings <- matrix(0, 1, par_divs)
+par_settings[1, ] <- round(200 * (par_seq_dec + min(par_seq_dec) * 
+                                    as.numeric(shove_dec)))
+
+save(par_list,
+     main_text,
+     axis_par,
+     pars,
+     xlab, palpha,
+     par_settings,
+     par_seq,
+     par_divs,
+     par_dirs,
+     file = "sims-results/sbm-par-lists/experiment15.RData")
+
 
 writeLines(total_expers, "sims-results/exper-names.txt")
 
 
 writeLines(total_expers, "sims-results/exper-names.txt")
+
+
