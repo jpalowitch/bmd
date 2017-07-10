@@ -26,7 +26,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
   if (length(B01) > 1) {
     
     # Half-update
-    pvals2 <- bmd_obj$pvals(B01, parallel)
+    pvals2 <- bmd_obj$pvals(B01, pval_parallel)
     if (Cpp) {
       B02 <- bh_rejectC(pvals2, alpha, conserv = TRUE)
     } else {
@@ -80,7 +80,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
     
     if (updateMethod == 1) {
       
-      pvalsXY <- c(bmd_obj$pvals(B_oldy, parallel), bmd_obj$pvals(B_oldx, parallel))
+      pvalsXY <- c(bmd_obj$pvals(B_oldy, pval_parallel), bmd_obj$pvals(B_oldx, pval_parallel))
       B_new <- if (Cpp) {
         bh_rejectC(pvalsXY, alpha, conserv = TRUE)
       } else {
@@ -95,7 +95,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
       if (indx > dx) {
         
         # Update X nodes first
-        pvalsx <- bmd_obj$pvals(B_oldy, parallel)
+        pvalsx <- bmd_obj$pvals(B_oldy, pval_parallel)
         B_newx <- if(Cpp) {
           bh_rejectC(pvalsx, alpha, conserv = TRUE)
         } else {
@@ -105,7 +105,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
           B_newy <- integer(0)
           break
         }
-        pvalsy <- bmd_obj$pvals(B_newx, parallel)
+        pvalsy <- bmd_obj$pvals(B_newx, pval_parallel)
         B_newy <- if (Cpp) {
           Yindx[bh_rejectC(pvalsy, alpha, conserv = TRUE)]
         } else {
@@ -115,7 +115,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
       } else {
         
         # Update Y nodes first
-        pvalsy <- bmd_obj$pvals(B_oldx, parallel)
+        pvalsy <- bmd_obj$pvals(B_oldx, pval_parallel)
         B_newy <- if (Cpp) {
           Yindx[bh_rejectC(pvalsy, alpha, conserv = TRUE)]
         } else {
@@ -125,7 +125,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
           B_newx <- integer(0)
           break
         }
-        pvalsx <- bmd_obj$pvals(B_newy, parallel)
+        pvalsx <- bmd_obj$pvals(B_newy, pval_parallel)
         B_newx <- if (Cpp) {
           bh_rejectC(pvalsx, alpha, conserv = TRUE)
         } else {

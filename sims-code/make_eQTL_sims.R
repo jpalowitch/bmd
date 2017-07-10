@@ -1,5 +1,5 @@
-run_expers <- sapply(commandArgs(TRUE), as.numeric)
-
+#run_expers <- sapply(commandArgs(TRUE), as.numeric)
+run_expers <- 15:17
 source("sim_eQTL_network.R")
 
 total_expers <- readLines("sims-results/exper-names.txt")

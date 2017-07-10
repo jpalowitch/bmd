@@ -10,7 +10,7 @@ par_seq  <- round(100 * (1:par_divs / (par_divs + 1)))
 par_dirs <- as.character(par_seq)
 
 # Give the names of your experiments: must be manually entered.
-total_expers <- as.character(1:14)
+total_expers <- as.character(1:17)
 
 if (!dir.exists("sims-results/sbm-par-lists"))
   dir.create("sims-results/sbm-par-lists", recursive = TRUE)
@@ -334,7 +334,7 @@ save(par_list,
 # Experiment 15 -----------------------------------------------------------------
 
 main_text <- "Increase n, bm-size power law"
-par_list <- make_param_list(size_law = -1, cmin = 5, cmax = 200)
+par_list <- make_param_list(size_law = -1, cmin = 5, cmax = 200, rho_var = 0.05)
 pars <- c("n")
 xlab <- "Sample Size"
 palpha <- FALSE
@@ -353,6 +353,50 @@ save(par_list,
      par_divs,
      par_dirs,
      file = "sims-results/sbm-par-lists/experiment15.RData")
+
+# Experiment 16 -----------------------------------------------------------------
+
+main_text <- "Decrease mean of beta parameters, bm-size power law"
+par_list <- make_param_list(size_law = -1, cmin = 5, cmax = 200, rho_var = 0.05)
+pars <- c("betamean")
+xlab <- "Mean of beta params"
+palpha <- FALSE
+axis_par <- 1
+par_settings <- matrix(0, 1, par_divs)
+par_settings[1, ] <- 3 * (par_seq_dec + min(par_seq_dec) * as.numeric(shove_dec))
+
+save(par_list,
+     main_text,
+     axis_par,
+     pars,
+     xlab, palpha,
+     par_settings,
+     par_seq,
+     par_divs,
+     par_dirs,
+     file = "sims-results/sbm-par-lists/experiment16.RData")
+
+# Experiment 17 -----------------------------------------------------------------
+
+main_text <- "Decrease eQTL probability, bm-size power law"
+par_list <- make_param_list(size_law = -1, cmin = 5, cmax = 200, rho_var = 0.05)
+pars <- c("p")
+xlab <- "eQTL probability"
+palpha <- FALSE
+axis_par <- 1
+par_settings <- matrix(0, 1, par_divs)
+par_settings[1, ] <- 0.5 * (par_seq_dec + min(par_seq_dec) * as.numeric(shove_dec))
+
+save(par_list,
+     main_text,
+     axis_par,
+     pars,
+     xlab, palpha,
+     par_settings,
+     par_seq,
+     par_divs,
+     par_dirs,
+     file = "sims-results/sbm-par-lists/experiment17.RData")
 
 
 writeLines(total_expers, "sims-results/exper-names.txt")

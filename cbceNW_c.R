@@ -9,7 +9,7 @@ library(bmdupdate)
 
 cbceNW_c <- function (X, Y, alpha = 0.05, OL_thres = 0.9, tag = NULL, Cpp = FALSE, verbose = TRUE, generalOutput = TRUE,
                       updateOutput = TRUE, exhaustive = FALSE, OL_tol = Inf, Dud_tol = Inf, time_limit = 18000,
-                      updateMethod = 1, inv.length = TRUE, add_rate = 1, start_nodes = NULL,
+                      updateMethod = 1, inv.length = TRUE, add_rate = 1, start_nodes = NULL, pval_parallel = FALSE,
                       calc_full_cor=FALSE, loop_limit = Inf, parallel = FALSE, twoSided = FALSE) {
   
   if (FALSE) {
@@ -31,6 +31,7 @@ cbceNW_c <- function (X, Y, alpha = 0.05, OL_thres = 0.9, tag = NULL, Cpp = FALS
     calc_full_cor = TRUE
     parallel = FALSE
     start_nodes = NULL
+    pval_parallel = FALSE
     twoSided = FALSE
   }
   
@@ -74,16 +75,11 @@ cbceNW_c <- function (X, Y, alpha = 0.05, OL_thres = 0.9, tag = NULL, Cpp = FALS
   # Getting node orders.
   Ysum <- Y %*% rep(1,dy) / dy
   Xsum <- X %*% rep(1,dx) / dx
-  cor_X_to_Ysums <- as.vector(t(Ysum) %*% X)
-  cor_Y_to_Xsums <- as.vector(t(Xsum) %*% Y)
-  
-  #if (!twoSided) {
-  if (TRUE) {
-    extractord <- c(Xindx, Yindx)[order(c(cor_X_to_Ysums, cor_Y_to_Xsums),
-                                          decreasing = TRUE)]
-  } else {
-    extractord <- sample(c(Xindx, Yindx))
-  }
+  cor_X_to_Ysums <- abs(as.vector(t(Ysum) %*% X))
+  cor_Y_to_Xsums <- abs(as.vector(t(Xsum) %*% Y))
+
+  extractord <- c(Xindx, Yindx)[order(c(cor_X_to_Ysums, cor_Y_to_Xsums),
+                                      decreasing = TRUE)]
   
   if (!is.null(start_nodes))
     extractord <- extractord[extractord %in% start_nodes]
