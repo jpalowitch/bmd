@@ -87,7 +87,7 @@ save(par_list,
 
 main_text <- "Decrease mean of beta parameters"
 par_list <- make_param_list()
-pars <- c("betamean")
+pars <- c("cormean")
 xlab <- "Mean of beta params"
 palpha <- FALSE
 axis_par <- 1
@@ -286,7 +286,7 @@ save(par_list,
 # Experiment 13 -----------------------------------------------------------------
 
 main_text <- "Increase n (w/ clearer signal)"
-par_list <- make_param_list(p = 1, rho = 0.5, betamean = 3, s2 = 1, bgmult = 0,
+par_list <- make_param_list(p = 1, rho = 0.5, cormean = 3, s2 = 1, bgmult = 0,
                             cmin = 100, b = 4)
 pars <- c("n")
 xlab <- "Sample Size"
@@ -311,7 +311,7 @@ save(par_list,
 #----** Special experiment which adjusts algorithm parameter **----#
 
 main_text <- "Decrease alpha (w/ clearer signal)"
-par_list <- make_param_list(p = 1, rho = 0.5, betamean = 3, s2 = 1, bgmult = 0,
+par_list <- make_param_list(p = 1, rho = 0.5, cormean = 3, s2 = 1, bgmult = 0,
                             cmin = 100, b = 4, n = 1000)
 pars <- c("alpha")
 xlab <- expression(alpha)
@@ -334,7 +334,7 @@ save(par_list,
 # Experiment 15 -----------------------------------------------------------------
 
 main_text <- "Increase n, bm-size power law"
-par_list <- make_param_list(size_law = -1, cmin = 5, cmax = 200, rho_var = 0.05)
+par_list <- make_param_list(size_law = -1, cmin = 10, cmax = 100)
 pars <- c("n")
 xlab <- "Sample Size"
 palpha <- FALSE
@@ -356,14 +356,14 @@ save(par_list,
 
 # Experiment 16 -----------------------------------------------------------------
 
-main_text <- "Decrease mean of beta parameters, bm-size power law"
-par_list <- make_param_list(size_law = -1, cmin = 5, cmax = 200, rho_var = 0.05)
-pars <- c("betamean")
-xlab <- "Mean of beta params"
+main_text <- "Increase variance, bm-size power law"
+par_list <- make_param_list(size_law = -1, cmin = 10, cmax = 100)
+pars <- c("s2")
+xlab <- "Decrease mean of beta params, bm-size power law"
 palpha <- FALSE
 axis_par <- 1
 par_settings <- matrix(0, 1, par_divs)
-par_settings[1, ] <- 3 * (par_seq_dec + min(par_seq_dec) * as.numeric(shove_dec))
+par_settings[1, ] <- 20 * (par_seq_dec + min(par_seq_dec) * as.numeric(shove_dec))
 
 save(par_list,
      main_text,
@@ -379,7 +379,7 @@ save(par_list,
 # Experiment 17 -----------------------------------------------------------------
 
 main_text <- "Decrease eQTL probability, bm-size power law"
-par_list <- make_param_list(size_law = -1, cmin = 5, cmax = 200, rho_var = 0.05)
+par_list <- make_param_list(size_law = -1, cmin = 10, cmax = 100)
 pars <- c("p")
 xlab <- "eQTL probability"
 palpha <- FALSE

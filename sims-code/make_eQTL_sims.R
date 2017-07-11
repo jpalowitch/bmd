@@ -78,7 +78,8 @@ for (exper in run_expers) {
         )))
       }
       
-      sim <- sim_eQTL_network(par_list_p)
+      sim <- sim_eQTL_network(par_list_p, randomizeBeta = FALSE)
+      #ggcor(cor(sim$X, sim$Y), fisher = FALSE, fn = "15test.png")
       save(sim, file = sim_fn)
       rm(sim)
       gc()

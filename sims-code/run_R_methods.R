@@ -1,5 +1,5 @@
 #run_expers <- sapply(commandArgs(TRUE), as.numeric)
-run_expers <- c(1, 3, 4, 5, 6)
+run_expers <- 15:17
 source("sim_eQTL_network.R")
 source("run_brim.R")
 source("ircc.R")
@@ -9,6 +9,7 @@ total_expers <- readLines("sims-results/exper-names.txt")
 
 runBMDcpp <- TRUE
 runBMD2 <- TRUE
+runBMD_c <- TRUE
 runBMD <- FALSE
 runBRIM <- FALSE
 runkmeans <- FALSE
@@ -45,7 +46,7 @@ for (exper in run_expers) {
       if (runBMD_c) {
         timer <- proc.time()[3]
         results <- cbceNW_c(sim$X, sim$Y, alpha = alpha, verbose = TRUE, generalOutput = TRUE,
-                            updateOutput = TRUE, OL_tol = 100, Dud_tol = 50, Cpp = FALSE,
+                            updateOutput = TRUE, OL_tol = 100, Dud_tol = Inf, Cpp = FALSE, pval_parallel = TRUE,
                             calc_full_cor = TRUE, updateMethod = 1, twoSided = TRUE, parallel = FALSE)
         timer <- proc.time()[3] - timer
         save(results, timer, file = file.path(curr_dir_p_rep, "bmd_c.RData"))
@@ -55,7 +56,7 @@ for (exper in run_expers) {
       if (runBMDcpp) {
         timer <- proc.time()[3]
         results <- cbceNW(sim$X, sim$Y, alpha = alpha, verbose = FALSE, generalOutput = TRUE,
-                          updateOutput = FALSE, OL_tol = 100, Dud_tol = 50, Cpp = TRUE,
+                          updateOutput = FALSE, OL_tol = 100, Dud_tol = Inf, Cpp = TRUE,
                           calc_full_cor = TRUE, updateMethod = 1)
         timer <- proc.time()[3] - timer
         save(results, timer, file = file.path(curr_dir_p_rep, "bmd_cpp.RData"))
@@ -65,7 +66,7 @@ for (exper in run_expers) {
       if (runBMD2) {
         timer <- proc.time()[3]
         results <- cbceNW(sim$X, sim$Y, alpha = alpha, verbose = FALSE, generalOutput = TRUE,
-                          updateOutput = FALSE, OL_tol = 100, Dud_tol = 50,
+                          updateOutput = FALSE, OL_tol = 100, Dud_tol = Inf,
                           calc_full_cor = TRUE, updateMethod = 2)
         timer <- proc.time()[3] - timer
         save(results, timer, file = file.path(curr_dir_p_rep, "bmd2.RData"))

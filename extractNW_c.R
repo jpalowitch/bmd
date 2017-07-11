@@ -1,5 +1,13 @@
 extract <- function (indx, interact = FALSE, print_output = verbose) {
   
+  # Getting time of completion
+  current_time <- proc.time()[3] - start_second
+  
+  # Doing checks
+  if (interact && (current_time > time_limit || Dud_count > Dud_tol || OL_count > OL_tol)) {
+    stop_extracting <<- TRUE
+  }
+  
   # If you want to interact with trackers, get the current tracking info
   if (interact) {
     
@@ -213,9 +221,6 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
     
   }
   
-  # Getting time of completion
-  current_time <- proc.time()[3] - start_second
-  
   # Storing B_new and collecting update info
   update_info <- list("mean_jaccards" = mean_jaccards, 
                       "consec_jaccards" = consec_jaccards,
@@ -232,7 +237,7 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
                 "initial_set" = initial_set,
                 "itCount" = itCount, 
                 "did_it_cycle" = did_it_cycle,
-                "current_time" = current_time,
+                "start_time" = current_time,
                 "report" = "break_or_collapse"))
   } else {
     clustered <<- union(clustered, B_new)
@@ -246,11 +251,6 @@ extract <- function (indx, interact = FALSE, print_output = verbose) {
     if (sum(OL_check < 1 - OL_thres) > 0) {
       OL_count <<- OL_count + 1
     }
-  }
-  
-  # Noting which final.sets are filled; doing checks
-  if (interact && (current_time > time_limit || Dud_count > Dud_tol || OL_count > OL_tol)) {
-    stop_extracting <<- TRUE
   }
   
   return(list("indx" = indx,

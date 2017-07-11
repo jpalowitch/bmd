@@ -5,7 +5,7 @@
 # cmin = minimum size of bimodule half
 # cmax = maximum size of bimodule half
 # bgmult = number of background variables / (b * (cmax - cmin) / 2)
-# betamean = mean of exponential distribution for betas
+# cormean = mean of exponential distribution for betas
 # rho = intracorrelations of X variables
 # p = average edge density of bimodules
 # s2 = noise variance scaling
@@ -21,7 +21,7 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
   cmin = par_list$cmin
   cmax = par_list$cmax
   bgmult = par_list$bgmult
-  betamean = par_list$betamean
+  cormean = par_list$cormean
   p = par_list$p
   rho = par_list$rho
   rho_var = par_list$rho_var
@@ -34,14 +34,10 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
   
   avgsize <- cmin + (cmax - cmin) / 2
   
-  # Setting noise variance
-  mavg <- p * avgsize
-  nv <- s2 * mavg * (1 - rho + rho * mavg) * betamean
-  
   # Getting bimodule sizes
   if (cmin < cmax) {
-    Xsizes <- sample(cmin:cmax, b, replace = TRUE, prob = (cmin:cmax)^(-size_law))
-    Ysizes <- sample(cmin:cmax, b, replace = TRUE, prob = (cmin:cmax)^(-size_law))
+    Xsizes <- sample(cmin:cmax, b, replace = TRUE, prob = (cmin:cmax)^(size_law))
+    Ysizes <- sample(cmin:cmax, b, replace = TRUE, prob = (cmin:cmax)^(size_law))
   } else {
     Xsizes <- Ysizes <- rep(cmin, b)
   }
@@ -77,10 +73,17 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
     MindxX <- 1:Xsizes[i]
     MindxY <- (Xsizes[i] + 1):(Xsizes[i] + Ysizes[i])
     
+    # Setting i-specific parameters
+    mavg <- p * Xsizes[i]
+    nv <- s2 * mavg * (1 - rhos[i] + rhos[i] * mavg)
+    
     # Generating eQTLs
     eQTLs <- matrix(rbinom(Xsizes[i] * Ysizes[i], 1, p), ncol = Ysizes[i])
-    if (randomizeBeta)
-      eQTLs[eQTLs == 1] <- rexp(sum(eQTLs), rate = 1 / betamean)
+    if (randomizeBeta) {
+      eQTLs[eQTLs == 1] <- rexp(sum(eQTLs))
+    } else {
+      eQTLs[eQTLs == 1] <- rep(cormean, sum(eQTLs))
+    }
     
     # Making data
     SigmaX <- (1 - rhos[i]) * diag(Xsizes[i]) + 
@@ -93,7 +96,7 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
     # Putting data in, re-setting loop
     X[ , Xindxs] <- Xi; Y[ , Yindxs] <- Yi
     Xindx <- Xindx + Xsizes[i]; Yindx <- Yindx + Ysizes[i]
-        
+    
   }
   
   if (dbg > 0) {
@@ -143,7 +146,7 @@ sim_eQTL_network <- function (par_list, randomizeBeta = TRUE) {
       Xnoise[ , Xbgindxs[[j]]] <- mvrnormR(n, rep(0, Xbgbj), SigXj)
       Ynoise[ , Ybgindxs[[j]]] <- mvrnormR(n, rep(0, Ybgbj), SigYj)
     }
-  
+    
     X[ , Xindx:dx] <- Xnoise
     Y[ , Yindx:dy] <- Ynoise
     
@@ -158,11 +161,11 @@ make_param_list <- function (n = 200,
                              cmin = 50,
                              cmax = 100,
                              bgmult = 1,
-                             betamean = 1,
                              p = 0.5,
                              rho = 0.3,
+                             cormean = rho,
                              rho_var = 0,
-                             s2 = 4,
+                             s2 = 1,
                              bgb = NULL,
                              corNoiseX = FALSE,
                              corNoiseY = FALSE,
@@ -173,7 +176,7 @@ make_param_list <- function (n = 200,
               "cmin" = cmin,
               "cmax" = cmax,
               "bgmult" = bgmult,
-              "betamean" = betamean,
+              "cormean" = cormean,
               "p" = p,
               "rho" = rho,
               "rho_var" = rho_var,
@@ -203,5 +206,4 @@ if (FALSE) {
   ggcor(cormat, fisher = FALSE, fn = "default_mat.png", theme = cortheme,
         title = "Default Network Model", width = 11.5, height = 10)
 }
-    
-    
+
