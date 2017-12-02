@@ -15,3 +15,7 @@ bmdCpp/*/*.o
 bmdCpp/*/*.so
 bmdCpp/*/*.dll
 CvsR
+null_sim_log.txt
+null_sim_log_11_27.txt
+null_sim_log.RData
+null_sims_data.RData
