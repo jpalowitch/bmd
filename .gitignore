@@ -19,3 +19,6 @@ null_sim_log.txt
 null_sim_log_11_27.txt
 null_sim_log.RData
 null_sims_data.RData
+null_sims_data_n.RData
+null_sims_plot_n_comms.png
+null_sims_plot_n_nodes.png

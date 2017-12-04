@@ -1,30 +1,51 @@
+ Args <- commandArgs(TRUE)
+#Args <- c("n")
+if (length(Args) < 1) {
+  stop('usage: [type]\n')
+}
+
+Type = Args[1]
+
+if (!Type %in% c("n", "bg")) {
+  stop('usage: [type]\n[type] must be in c("n", "bg")')
+}
+
+# ------------------------------------------------------------------------------
+
 source("mvrnormR.R")
 library(cbce)
-
-nsims <- 20
-ns <- seq(50, 500, 50)
-rhos <- seq(0, 0.9, 0.1)
-dx <- 100
-mx <- 50
-dy <- 100
-my <- 50
+source("null_sims_control.R")
 
 # ------------------------------------------------------------------------------
 
 # Setting up 
-SigmaX <- matrix(0, dx, dx)
-SigmaY <- matrix(0, dy, dy)
-meth1_ncomm <- meth2_ncomm <- diffs_ncomm <- matrix(0, length(ns), length(rhos))
-meth1_nnode <- meth2_nnode <- diffs_nnode <- matrix(0, length(ns), length(rhos))
-I <- length(ns)
+if (Type == "n") {
+  pars = ns
+} else if (Type == "bg") {
+  pars = bgs
+}
+meth1_ncomm <- meth2_ncomm <- diffs_ncomm <- matrix(0, length(pars), length(rhos))
+meth1_nnode <- meth2_nnode <- diffs_nnode <- matrix(0, length(pars), length(rhos))
+I <- length(pars)
 J <- length(rhos)
 K <- nsims
 
 # ------------------------------------------------------------------------------
 
-for (i in seq_along(ns)) {
+for (i in seq_along(pars)) {
   
   n <- ns[i]
+  
+  if (Type == "n") {
+    bg <- bgs[1]
+    n <- pars[i]
+  } else if (Type == "bg") {
+    bg <- pars[i]
+    n <- ns[2]
+  }
+  dx <- mx + bg; dy <- my + bg
+  SigmaX <- matrix(0, dx, dx)
+  SigmaY <- matrix(0, dy, dy)
   
   for (j in seq_along(rhos)) {
     
@@ -35,7 +56,11 @@ for (i in seq_along(ns)) {
     
     for (k in 1:nsims) {
     
-      cat("n =", n, "rho =", rho, "nsim =", k, "\n")
+      if (Type == "n") {
+        cat("n =", n, "rho =", rho, "nsim =", k, "\n")
+      } else if (Type == "bg") {
+        cat("bg =", bg, "rho =", rho, "nsim =", k, "\n")
+      }
       seednum <-(i - 1) * J * K + (j - 1) * K + k
       writeLines(paste("i =", i, "j =", j, "k =", k),
                  con = "null_sim_log.txt")
@@ -79,5 +104,5 @@ for (i in seq_along(ns)) {
 }
 
 save(meth1_ncomm, meth2_ncomm, meth1_nnode, meth2_nnode,
-     diffs_ncomm, diffs_nnode, file="null_sims_data.RData")
+     diffs_ncomm, diffs_nnode, file=paste0("null_sims_data_", Type, ".RData"))
 
